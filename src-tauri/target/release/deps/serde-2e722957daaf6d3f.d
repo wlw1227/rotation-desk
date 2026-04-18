@@ -1,0 +1,14 @@
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/deps/serde-2e722957daaf6d3f.d: /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/serde-2ebabc17533121a2/out/private.rs
+
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/deps/libserde-2e722957daaf6d3f.rlib: /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/serde-2ebabc17533121a2/out/private.rs
+
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/deps/libserde-2e722957daaf6d3f.rmeta: /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/serde-2ebabc17533121a2/out/private.rs
+
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/serde-2ebabc17533121a2/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/serde-2ebabc17533121a2/out

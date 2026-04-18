@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "RotationDesk",
+  "version": "1.0.0",
+  "identifier": "com.rotationdesk.desktop",
+  "build": {
+    "frontendDist": "../frontend",
+    "devUrl": "http://localhost:8000",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "RotationDesk",
+        "url": "http://localhost:8000",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1100,
+        "minHeight": 700,
+        "resizable": true,
+        "visible": false,
+        "decorations": true,
+        "center": true
+      },
+      {
+        "label": "settings",
+        "title": "RotationDesk — Setup",
+        "url": "settings.html",
+        "width": 520,
+        "height": 600,
+        "resizable": false,
+        "visible": false,
+        "center": true,
+        "decorations": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/rotation-intel-server"
+    ],
+    "resources": {
+      "icons/tray-ready.png": "icons/tray-ready.png",
+      "icons/tray-collecting.png": "icons/tray-collecting.png",
+      "icons/tray-error.png": "icons/tray-error.png"
+    },
+    "macOS": {
+      "entitlements": "RotationDesk.entitlements",
+      "frameworks": [],
+      "minimumSystemVersion": "10.15",
+      "signingIdentity": null
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
+  },
+  "plugins": {}
+}

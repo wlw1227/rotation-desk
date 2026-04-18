@@ -1,0 +1,13 @@
+{
+  "name": "rotation-desk",
+  "version": "1.0.0",
+  "scripts": {
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.6"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.0.3"
+  }
+}

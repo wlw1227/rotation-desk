@@ -1,0 +1,17 @@
+cargo:rerun-if-env-changed=TAURI_CONFIG
+cargo:rustc-check-cfg=cfg(desktop)
+cargo:rustc-cfg=desktop
+cargo:rustc-check-cfg=cfg(mobile)
+cargo:rerun-if-changed=/Users/loganwolf/Documents/trading_dashboard/src-tauri/tauri.conf.json
+cargo:rustc-env=TAURI_ANDROID_PACKAGE_NAME_APP_NAME=desktop
+cargo:rustc-env=TAURI_ANDROID_PACKAGE_NAME_PREFIX=com_rotationdesk
+cargo:rustc-check-cfg=cfg(dev)
+cargo:PERMISSION_FILES_PATH=/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/rotation-desk-2a69417ac99d4629/out/app-manifest/__app__-permission-files
+cargo:rerun-if-changed=capabilities
+cargo:rerun-if-env-changed=REMOVE_UNUSED_COMMANDS
+cargo:rustc-env=TAURI_ENV_TARGET_TRIPLE=x86_64-apple-darwin
+cargo:rerun-if-changed=binaries/rotation-intel-server-x86_64-apple-darwin
+cargo:rerun-if-changed=icons/tray-ready.png
+cargo:rerun-if-changed=icons/tray-collecting.png
+cargo:rerun-if-changed=icons/tray-error.png
+cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.15

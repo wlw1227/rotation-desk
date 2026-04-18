@@ -1,0 +1,14 @@
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/deps/thiserror-12bb489ec2d8acf3.d: /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs /Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/thiserror-3053d29152c5db2e/out/private.rs
+
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/deps/libthiserror-12bb489ec2d8acf3.rlib: /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs /Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/thiserror-3053d29152c5db2e/out/private.rs
+
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/deps/libthiserror-12bb489ec2d8acf3.rmeta: /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs /Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs /Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/thiserror-3053d29152c5db2e/out/private.rs
+
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/lib.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/aserror.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/display.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/var.rs:
+/Users/loganwolf/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.18/src/private.rs:
+/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/thiserror-3053d29152c5db2e/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/loganwolf/Documents/trading_dashboard/src-tauri/target/release/build/thiserror-3053d29152c5db2e/out
