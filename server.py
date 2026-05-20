@@ -72,6 +72,8 @@ import uvicorn
 from defillama import collect_all as collect_defillama
 from telegram import collect_telegram_signals
 from claude_engine import synthesize
+from community_tracker import collect_community_signals
+from community_scorer import score_communities
 
 scheduler = AsyncIOScheduler()
 
@@ -88,6 +90,15 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Rotation Intel", lifespan=lifespan)
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://chainsounding.com", "https://www.chainsounding.com"],
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
+
 # ── State ──────────────────────────────────────────────────────────────────────
 
 state = {
@@ -97,6 +108,8 @@ state = {
     "synthesis": {},
     "status": "initializing",
     "next_run": None,
+    "leaderboard": [],
+    "community_signals": {},
 }
 
 connected_clients: list[WebSocket] = []
@@ -140,6 +153,15 @@ async def run_pipeline():
             "data": synthesis,
             "last_run": state["last_run"],
         })
+
+        # Step 4: Community scoring (leaderboard)
+        rprint("[cyan]Step 4/4: Community scoring[/cyan]")
+        community_signals = await collect_community_signals(hours_back=720)
+        state["community_signals"] = community_signals
+        leaderboard = score_communities(community_signals, defillama_data)
+        state["leaderboard"] = leaderboard
+        await broadcast({"type": "leaderboard_update", "data": leaderboard})
+        rprint(f"[green]Community scoring: {len(leaderboard)} communities ranked[/green]")
 
         rprint(f"[bold green]━━ Pipeline complete ━━[/bold green]")
 
@@ -246,6 +268,85 @@ async def get_defillama():
     return JSONResponse(_safe_defillama(state["defillama"]))
 
 
+@app.get("/api/leaderboard")
+async def get_leaderboard():
+    return JSONResponse({
+        "leaderboard": state["leaderboard"],
+        "scored_at": state["leaderboard"][0]["scored_at"] if state["leaderboard"] else None,
+        "community_count": len(state["leaderboard"]),
+    })
+
+
+@app.get("/api/crowsnest/{sector}")
+async def get_crowsnest_channels(sector: str):
+    """Get top Crow's Nest channels for a given sector."""
+    try:
+        import asyncpg
+        DATABASE_URL = os.getenv(
+            "DATABASE_URL",
+            "postgresql://root:alphaindex@localhost:5432/alpha_index"
+        )
+
+        # Map sector names to category patterns
+        sector_map = {
+            "derivatives": ["DeFi", "Derivatives"],
+            "perp dex": ["DeFi", "Derivatives"],
+            "leveraged farming": ["DeFi", "Yield"],
+            "defi lending": ["DeFi"],
+            "liquid staking": ["DeFi"],
+            "memecoins": ["Memecoin", "Gem"],
+            "ai tokens": ["AI", "Tech"],
+            "rwa": ["RWA"],
+            "payfi": ["DeFi", "PayFi"],
+        }
+
+        # Normalize sector name
+        sector_lower = sector.lower()
+        categories = []
+        for key, cats in sector_map.items():
+            if key in sector_lower:
+                categories = cats
+                break
+
+        conn = await asyncpg.connect(DATABASE_URL)
+
+        rows = await conn.fetch("""
+            SELECT
+                s.name,
+                s.handle,
+                ss.final_score,
+                ss.hit_2x_rate,
+                ss.total_mentions
+            FROM sources s
+            JOIN source_scores ss ON ss.source_id = s.id
+            WHERE s.status NOT IN ('excluded', 'pending')
+            AND ss.total_mentions >= 10
+            ORDER BY ss.final_score DESC
+            LIMIT 3
+        """)
+
+        await conn.close()
+
+        channels = [
+            {
+                "name": row["name"],
+                "handle": row["handle"],
+                "score": round(float(row["final_score"] or 0), 1),
+                "hit_2x_rate": round(float(row["hit_2x_rate"] or 0) * 100, 1),
+            }
+            for row in rows
+        ]
+
+        return {
+            "sector": sector,
+            "channels": channels,
+            "crowsnest_url": "https://crowsnest.chainsounding.com"
+        }
+
+    except Exception as e:
+        return {"sector": sector, "channels": [], "error": str(e)}
+
+
 # ── Dashboard HTML ─────────────────────────────────────────────────────────────
 
 @app.get("/", response_class=HTMLResponse)
@@ -256,6 +357,10 @@ async def dashboard():
         return HTMLResponse(html_path.read_text())
     return HTMLResponse("<h1>Dashboard not found</h1><p>Run build first</p>")
 
+
+# ── Static files (images, icons, etc.) ────────────────────────────────────────
+
+app.mount("/", StaticFiles(directory=str(Path(__file__).parent)), name="static")
 
 # ── Startup ────────────────────────────────────────────────────────────────────
 

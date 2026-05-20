@@ -276,7 +276,7 @@ async def synthesize(
     response = await loop.run_in_executor(
         None,
         lambda: client.messages.create(
-            model="claude-sonnet-4-5",
+            model="claude-haiku-4-5-20251001",
             max_tokens=2000,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],

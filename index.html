@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROTATION DESK — LIVE</title>
+<title>Sonar — Chain Sounding</title>
+<link rel="icon" type="image/png" href="/SONAR_icon_1024.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -15,154 +16,246 @@
     --amber-dim: rgba(255,171,0,0.08);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  body { font-family:'DM Sans',sans-serif; font-size:13px; background:var(--bg); color:var(--text); min-height:100vh; }
   body::before {
     content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
     background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.012) 2px,rgba(255,255,255,0.012) 4px);
   }
 
+  /* ── HEADER ── */
   header {
-    border-bottom:1px solid var(--border); padding:0 32px;
-    display:flex; align-items:center; justify-content:space-between;
-    height:56px; position:sticky; top:0;
-    background:rgba(10,10,10,0.95); backdrop-filter:blur(8px); z-index:100;
+    border-bottom:1px solid var(--border); padding:0 28px;
+    display:grid; grid-template-columns:1fr auto 1fr;
+    align-items:center; height:52px; position:sticky; top:0;
+    background:rgba(10,10,10,0.97); backdrop-filter:blur(10px); z-index:100;
+    gap:16px;
   }
-  .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:4px; }
-  .logo span { color:var(--amber); }
-  .header-right { display:flex; align-items:center; gap:20px; }
-
+  .header-logo { display:flex; align-items:center; }
+  .header-logo img { height:28px; width:auto; }
+  .header-phase {
+    display:flex; align-items:center; gap:8px;
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
+    padding:4px 14px; border:1px solid var(--border-bright);
+    background:var(--surface); white-space:nowrap;
+  }
+  .phase-dot { width:5px; height:5px; border-radius:50%; background:var(--amber); flex-shrink:0; }
+  .header-right { display:flex; align-items:center; gap:14px; justify-content:flex-end; }
   .status-pill {
     display:flex; align-items:center; gap:6px;
     font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
     padding:4px 10px; border:1px solid var(--border);
   }
-  .status-dot { width:6px; height:6px; border-radius:50%; }
+  .status-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
   .status-dot.ready { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
   .status-dot.collecting { background:var(--amber); animation:pulse 0.5s infinite; }
   .status-dot.error { background:var(--red); }
   .status-dot.initializing { background:var(--muted); }
-
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
   .run-btn {
     font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    padding:6px 14px; background:transparent; color:var(--amber);
+    padding:5px 12px; background:transparent; color:var(--amber);
     border:1px solid var(--amber); cursor:pointer; transition:all 0.15s;
+    white-space:nowrap;
   }
   .run-btn:hover { background:var(--amber-dim); }
-  .clock { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); }
+  .clock { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap; }
 
-  main { padding:24px 32px; display:grid; gap:20px; }
+  /* ── ACTION BAR ── */
+  .action-bar {
+    background:var(--amber); padding:0 28px; height:38px;
+    display:flex; align-items:center; gap:12px;
+    font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px;
+    color:#000; overflow:hidden; transition:opacity 0.3s;
+  }
+  .action-bar-label { font-weight:500; white-space:nowrap; opacity:0.7; }
+  .action-bar-text { font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .action-bar.empty { background:rgba(255,171,0,0.12); }
+  .action-bar.empty .action-bar-text { color:var(--muted); }
+  .action-bar.empty .action-bar-label { color:var(--muted); }
 
-  /* META READ — AI briefing at top */
-  .meta-read {
+  /* ── MAIN LAYOUT ── */
+  main { padding:24px 28px; display:flex; flex-direction:column; gap:24px; }
+
+  /* ── AI BRIEFING ── */
+  .briefing {
     background:var(--surface); border:1px solid var(--border);
-    border-left:3px solid var(--amber); padding:20px 24px;
-    display:grid; grid-template-columns:auto 1fr; gap:20px; align-items:start;
+    border-left:3px solid var(--amber);
+    padding:16px 20px; display:flex; flex-direction:column; gap:10px;
+    transition:opacity 0.3s;
   }
-  .meta-label {
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:3px;
-    color:var(--amber); writing-mode:vertical-rl; transform:rotate(180deg);
+  .briefing-text { font-size:14px; line-height:1.65; color:var(--text); }
+  .briefing-meta {
+    display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+    font-family:'DM Mono',monospace; font-size:10px; color:var(--muted);
   }
-  .meta-content { }
-  .meta-text { font-size:15px; line-height:1.6; color:var(--text); }
-  .meta-date { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); margin-top:8px; }
-
-  /* PHASE + TARGETS ROW */
-  .top-row { display:grid; grid-template-columns:280px 1fr; gap:16px; }
-
-  .panel { background:var(--surface); border:1px solid var(--border); }
-  .panel-header {
-    padding:12px 20px; border-bottom:1px solid var(--border);
-    display:flex; align-items:center; justify-content:space-between;
+  .briefing-date { }
+  .dq-inline { display:flex; gap:10px; }
+  .dq-chip {
+    display:flex; align-items:center; gap:4px;
+    padding:2px 7px; border:1px solid var(--border-bright);
   }
-  .panel-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; }
-  .panel-badge {
-    font-family:'DM Mono',monospace; font-size:9px;
-    padding:2px 7px; border:1px solid var(--border-bright); color:var(--muted);
+  .dq-chip .dq-dot { width:5px; height:5px; border-radius:50%; }
+  .dq-dot.good { background:var(--green); }
+  .dq-dot.limited { background:var(--amber); }
+  .dq-dot.unavailable { background:var(--red); }
+  .dq-dot.unknown { background:var(--muted); }
+
+  /* ── ROTATION TARGETS ── */
+  .section-label {
+    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px;
+    color:var(--muted); margin-bottom:12px;
+    display:flex; align-items:center; gap:10px;
   }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 
-  /* PHASE */
-  .phase-body { padding:20px; }
-  .phase-current { font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:2px; color:var(--amber); margin-bottom:6px; }
-  .phase-confidence { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); margin-bottom:12px; }
-  .phase-reasoning { font-size:12px; color:var(--muted); line-height:1.5; }
+  .targets-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 
-  /* ROTATION TARGETS */
-  .targets-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border); }
-  .target-card { background:var(--surface); padding:20px; }
-  .target-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-  .target-sector { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; }
+  .target-card {
+    background:var(--surface); border:1px solid var(--border);
+    display:flex; flex-direction:column; transition:opacity 0.3s;
+  }
+  .target-card-top { padding:18px 20px; flex:1; display:flex; flex-direction:column; gap:14px; }
+  .target-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .target-sector-name {
+    font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1px; line-height:1;
+  }
   .signal-pill {
     font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px;
-    padding:3px 8px; border-radius:2px;
+    padding:3px 8px; border-radius:2px; white-space:nowrap; flex-shrink:0;
   }
-  .signal-pill.hot { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.2); }
-  .signal-pill.early { background:rgba(255,171,0,0.1); color:var(--amber); border:1px solid rgba(255,171,0,0.2); }
-  .target-why { font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:14px; }
-  .layer-row { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
-  .layer-item { display:flex; gap:8px; align-items:flex-start; }
-  .layer-badge {
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px;
-    padding:2px 6px; flex-shrink:0; margin-top:1px;
+  .signal-pill.hot { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+  .signal-pill.early { background:rgba(255,171,0,0.1); color:var(--amber); border:1px solid rgba(255,171,0,0.3); }
+  .signal-pill.mid { background:rgba(100,100,100,0.1); color:var(--muted); border:1px solid var(--border-bright); }
+  .signal-pill.late { background:rgba(255,61,90,0.08); color:var(--red); border:1px solid rgba(255,61,90,0.2); }
+
+  .target-why-label {
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--muted); margin-bottom:4px;
   }
-  .layer-badge.beta { background:rgba(41,121,255,0.1); color:var(--blue); border:1px solid rgba(41,121,255,0.2); }
-  .layer-badge.shovel { background:rgba(0,188,212,0.1); color:var(--cyan); border:1px solid rgba(0,188,212,0.2); }
-  .layer-badge.flyer { background:rgba(255,171,0,0.1); color:var(--amber); border:1px solid rgba(255,171,0,0.2); }
-  .layer-text { font-size:11px; color:var(--muted); line-height:1.4; }
-  .inval-row {
+  .target-why {
+    font-size:12px; color:var(--muted); line-height:1.5;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+
+  .target-plays { display:flex; flex-direction:column; gap:6px; }
+  .target-plays-label {
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--muted); margin-bottom:2px;
+  }
+  .play-row { display:flex; gap:8px; align-items:flex-start; font-size:12px; }
+  .play-icon { font-size:11px; flex-shrink:0; margin-top:1px; }
+  .play-text { color:var(--text); line-height:1.4; }
+
+  .target-inval {
     border-top:1px solid var(--border); padding-top:10px;
     font-family:'DM Mono',monospace; font-size:10px; color:var(--muted);
-    display:flex; gap:8px; align-items:flex-start;
+    display:flex; gap:8px; align-items:flex-start; line-height:1.4;
   }
   .inval-label { color:var(--red); flex-shrink:0; }
 
-  /* MAIN DATA GRID */
-  .data-grid { display:grid; grid-template-columns:1fr 380px; gap:16px; }
+  /* Crow's Nest */
+  .crowsnest-section {
+    border-top:1px solid var(--border); padding:12px 20px 14px;
+    background:rgba(255,171,0,0.02);
+  }
+  .cn-label {
+    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:var(--amber); margin-bottom:8px;
+  }
+  .cn-channels { display:flex; flex-direction:column; gap:2px; min-height:18px; }
+  .cn-channel {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:3px 0; font-size:11px;
+  }
+  .cn-name { color:var(--text); }
+  .cn-score {
+    font-family:'DM Mono',monospace; font-size:10px; color:var(--green);
+  }
+  .cn-loading {
+    font-family:'DM Mono',monospace; font-size:10px; color:var(--dim);
+    letter-spacing:1px;
+  }
+  .cn-link {
+    display:block; font-family:'DM Mono',monospace; font-size:9px;
+    color:var(--amber); text-decoration:none; margin-top:8px; letter-spacing:1px;
+  }
+  .cn-link:hover { text-decoration:underline; }
 
-  /* SECTOR TABLE */
+  /* ── DATA GRID ── */
+  .data-grid { display:grid; grid-template-columns:60fr 40fr; gap:20px; }
+
+  /* ── SECTOR TABLE ── */
+  .table-wrap { background:var(--surface); border:1px solid var(--border); overflow:hidden; }
   table { width:100%; border-collapse:collapse; }
   th {
     font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
     color:var(--muted); padding:10px 16px; text-align:left;
-    border-bottom:1px solid var(--border);
+    border-bottom:1px solid var(--border); cursor:pointer; user-select:none;
+    white-space:nowrap;
   }
-  td { padding:11px 16px; font-size:12px; border-bottom:1px solid rgba(255,255,255,0.03); }
+  th:hover { color:var(--text); }
+  th.sorted-asc::after { content:' ↑'; color:var(--amber); }
+  th.sorted-desc::after { content:' ↓'; color:var(--amber); }
+  td {
+    padding:14px 16px; font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,0.03);
+    border-left:2px solid transparent;
+    transition:background 0.15s;
+  }
   tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(255,255,255,0.015); }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  tr.signal-hot td:first-child { border-left-color:var(--green); }
+  tr.signal-early td:first-child { border-left-color:var(--amber); }
+  tr.signal-mid td:first-child { border-left-color:var(--dim); }
+  tr.signal-late td:first-child, tr.signal-avoid td:first-child { border-left-color:var(--red); }
   .sector-name { display:flex; align-items:center; gap:8px; font-weight:500; }
   .sector-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
   .mono { font-family:'DM Mono',monospace; }
+  .wow-val { font-size:14px; font-family:'DM Mono',monospace; font-weight:500; }
   .wow-positive { color:var(--green); }
   .wow-negative { color:var(--red); }
-  .maturity-mini { width:60px; height:3px; background:rgba(255,255,255,0.06); border-radius:2px; overflow:hidden; }
-  .maturity-mini-fill { height:100%; border-radius:2px; }
+  .top-channel { font-size:10px; color:var(--muted); font-family:'DM Mono',monospace; }
 
-  /* RIGHT: NARRATIVE + ALERTS */
-  .right-col { display:flex; flex-direction:column; gap:14px; }
-
-  .narrative-row {
+  /* ── RIGHT COLUMN ── */
+  .right-col { display:flex; flex-direction:column; gap:16px; }
+  .panel { background:var(--surface); border:1px solid var(--border); }
+  .panel-header {
+    padding:10px 16px; border-bottom:1px solid var(--border);
     display:flex; align-items:center; justify-content:space-between;
-    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
-    gap:10px;
   }
-  .narrative-row:last-child { border-bottom:none; }
-  .narr-name { font-size:12px; font-weight:500; flex:1; }
-  .narr-signal {
-    font-family:'DM Mono',monospace; font-size:9px; letter-spacing:1px;
-    min-width:80px; text-align:right;
-  }
-  .narr-signal.early-hot { color:var(--green); }
-  .narr-signal.early { color:var(--amber); }
-  .narr-signal.mid { color:var(--muted); }
-  .narr-signal.late { color:var(--red); }
-  .narr-signal.avoid { color:var(--red); }
+  .panel-title { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px; }
 
+  /* Narrative signals */
+  .narrative-item {
+    padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .narrative-item:last-child { border-bottom:none; }
+  .narr-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .narr-name { font-size:13px; font-weight:500; }
+  .narr-signal-big {
+    font-family:'DM Mono',monospace; font-size:11px; font-weight:500; letter-spacing:1px;
+  }
+  .narr-signal-big.early-hot { color:var(--green); }
+  .narr-signal-big.early { color:var(--amber); }
+  .narr-signal-big.mid { color:var(--muted); }
+  .narr-signal-big.late, .narr-signal-big.avoid { color:var(--red); }
+  .tier-bar { display:flex; align-items:center; gap:8px; }
+  .tier-blocks { display:flex; gap:2px; }
+  .tier-block { width:8px; height:8px; border-radius:1px; }
+  .tier-block.filled-t1 { background:var(--blue); }
+  .tier-block.filled-t2 { background:var(--amber); }
+  .tier-block.filled-t3 { background:var(--muted); }
+  .tier-block.empty { background:var(--dim); }
+  .tier-counts { font-family:'DM Mono',monospace; font-size:9px; color:var(--dim); }
+
+  /* Alerts */
   .alert-item {
-    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
-    display:flex; gap:10px; align-items:flex-start;
+    padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
+    display:flex; gap:10px; align-items:flex-start; transition:background 0.2s;
   }
   .alert-item:last-child { border-bottom:none; }
+  .alert-item.urgency-high { border-left:2px solid var(--red); }
+  .alert-item.urgency-medium { border-left:2px solid var(--amber); }
+  .alert-item.urgency-low { border-left:2px solid var(--border-bright); }
   .alert-urgency {
     font-family:'DM Mono',monospace; font-size:9px; padding:2px 6px;
     flex-shrink:0; letter-spacing:1px;
@@ -170,55 +263,49 @@
   .alert-urgency.high { color:var(--red); border:1px solid rgba(255,61,90,0.2); background:var(--red-dim); }
   .alert-urgency.medium { color:var(--amber); border:1px solid rgba(255,171,0,0.2); background:var(--amber-dim); }
   .alert-urgency.low { color:var(--muted); border:1px solid var(--border); }
-  .alert-text { font-size:11px; color:var(--muted); line-height:1.4; }
+  .alert-text { font-size:12px; color:var(--muted); line-height:1.45; }
 
-  /* ACTIONS */
+  /* Weekly actions */
   .action-item {
-    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
-    display:flex; gap:10px; align-items:flex-start; font-size:12px; color:var(--muted);
+    padding:11px 16px; border-bottom:1px solid rgba(255,255,255,0.03);
+    display:flex; gap:12px; align-items:flex-start;
   }
   .action-item:last-child { border-bottom:none; }
-  .action-num { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); min-width:20px; }
+  .action-num { font-family:'DM Mono',monospace; font-size:11px; color:var(--amber); min-width:20px; flex-shrink:0; }
+  .action-text { font-size:13px; line-height:1.5; color:var(--text); }
 
-  /* DATA QUALITY */
-  .dq-row { display:flex; align-items:center; justify-content:space-between; padding:8px 16px; }
-  .dq-label { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:1px; }
-  .dq-val { font-family:'DM Mono',monospace; font-size:10px; }
-  .dq-val.good { color:var(--green); }
-  .dq-val.limited { color:var(--amber); }
-  .dq-val.unavailable { color:var(--red); }
+  /* ── FOOTER ── */
+  footer {
+    border-top:1px solid var(--border); padding:12px 28px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .footer-rule { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); letter-spacing:1px; }
+  .footer-rule span { color:var(--muted); margin:0 6px; }
 
-  /* LOADING STATE */
+  /* ── LOADING ── */
   .loading-overlay {
-    position:fixed; inset:0; background:rgba(10,10,10,0.9);
+    position:fixed; inset:0; background:rgba(10,10,10,0.92);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:16px; z-index:500;
   }
   .loading-overlay.hidden { display:none; }
   .loading-text { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); letter-spacing:2px; }
   .loading-spinner {
-    width:40px; height:40px; border:2px solid var(--border);
+    width:36px; height:36px; border:2px solid var(--border);
     border-top-color:var(--amber); border-radius:50%;
     animation:spin 1s linear infinite;
   }
   @keyframes spin { to{transform:rotate(360deg)} }
-
-  footer {
-    border-top:1px solid var(--border); padding:12px 32px;
-    display:flex; align-items:center; justify-content:space-between;
-  }
-  .footer-rule { font-family:'DM Mono',monospace; font-size:10px; color:var(--dim); letter-spacing:1px; }
-  .footer-rule span { color:var(--muted); margin:0 8px; }
-
   @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
   .fade-in { animation:fadeIn 0.3s ease both; }
 
-  .section-label {
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px;
-    color:var(--muted); margin-bottom:10px;
-    display:flex; align-items:center; gap:10px;
+  /* ── MOBILE ── */
+  @media (max-width:1024px) {
+    header { grid-template-columns:1fr 1fr; }
+    .header-phase { display:none; }
+    .targets-row { grid-template-columns:1fr; }
+    .data-grid { grid-template-columns:1fr; }
   }
-  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 </style>
 </head>
 <body>
@@ -229,7 +316,13 @@
 </div>
 
 <header>
-  <div class="logo">ROTATION<span>DESK</span> <span style="font-size:13px;color:var(--muted);letter-spacing:2px">LIVE</span></div>
+  <div class="header-logo">
+    <img src="/SONAR_primary_dark.png" alt="Sonar">
+  </div>
+  <div class="header-phase" id="header-phase">
+    <div class="phase-dot"></div>
+    <span id="header-phase-text">—</span>
+  </div>
   <div class="header-right">
     <div class="status-pill">
       <div class="status-dot initializing" id="status-dot"></div>
@@ -240,40 +333,28 @@
   </div>
 </header>
 
+<div class="action-bar empty" id="action-bar">
+  <span class="action-bar-label">▶ NOW:</span>
+  <span class="action-bar-text" id="action-bar-text">Waiting for synthesis...</span>
+</div>
+
 <main id="main" style="opacity:0">
 
-  <!-- AI META READ -->
-  <div class="meta-read" id="meta-read">
-    <div class="meta-label">AI BRIEFING</div>
-    <div class="meta-content">
-      <div class="meta-text" id="meta-text">Waiting for synthesis...</div>
-      <div class="meta-date" id="meta-date">—</div>
+  <!-- AI BRIEFING -->
+  <div class="briefing" id="briefing">
+    <div class="briefing-text" id="briefing-text">Waiting for synthesis...</div>
+    <div class="briefing-meta">
+      <span class="briefing-date" id="briefing-date">—</span>
+      <div class="dq-inline" id="dq-inline"></div>
     </div>
   </div>
 
-  <!-- PHASE + TARGETS -->
-  <div class="top-row">
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title">MARKET PHASE</div>
-        <div class="panel-badge" id="phase-confidence">—</div>
-      </div>
-      <div class="phase-body">
-        <div class="phase-current" id="phase-current">—</div>
-        <div class="phase-confidence" id="phase-conf-text">—</div>
-        <div class="phase-reasoning" id="phase-reasoning">Waiting for synthesis...</div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title">ROTATION TARGETS</div>
-        <div class="panel-badge">MAX 2 POSITIONS</div>
-      </div>
-      <div class="targets-grid" id="targets-grid">
-        <div class="target-card" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">
-          Waiting for synthesis...
-        </div>
+  <!-- ROTATION TARGETS -->
+  <div>
+    <div class="section-label">ROTATION TARGETS</div>
+    <div class="targets-row" id="targets-row">
+      <div class="target-card" style="padding:20px;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace">
+        Waiting for synthesis...
       </div>
     </div>
   </div>
@@ -281,29 +362,28 @@
   <!-- DATA GRID -->
   <div class="data-grid">
 
-    <!-- LEFT: SECTOR TABLE -->
+    <!-- SECTOR TABLE -->
     <div>
       <div class="section-label">LIVE SECTOR DATA</div>
-      <div class="panel">
-        <table>
+      <div class="table-wrap">
+        <table id="sector-table">
           <thead>
             <tr>
-              <th>SECTOR</th>
-              <th>7D FEES</th>
-              <th>WoW</th>
-              <th>NARRATIVE</th>
-              <th>MATURITY</th>
-              <th>SIGNAL</th>
+              <th data-col="name">SECTOR</th>
+              <th data-col="fees">7D FEES</th>
+              <th data-col="wow">WoW%</th>
+              <th data-col="signal">SIGNAL</th>
+              <th data-col="channel">TOP CHANNEL</th>
             </tr>
           </thead>
           <tbody id="sector-table-body">
-            <tr><td colspan="6" style="color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:20px">Loading sector data...</td></tr>
+            <tr><td colspan="5" style="color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:20px">Loading sector data...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT COLUMN -->
     <div class="right-col">
 
       <div>
@@ -333,17 +413,6 @@
         </div>
       </div>
 
-      <div>
-        <div class="section-label">DATA QUALITY</div>
-        <div class="panel">
-          <div class="dq-row"><div class="dq-label">DEFILLAMA</div><div class="dq-val" id="dq-defillama">—</div></div>
-          <div class="dq-row"><div class="dq-label">TELEGRAM</div><div class="dq-val" id="dq-telegram">—</div></div>
-          <div class="dq-row"><div class="dq-label">REDDIT</div><div class="dq-val" id="dq-reddit">—</div></div>
-          <div class="dq-row"><div class="dq-label">CONFIDENCE</div><div class="dq-val" id="dq-confidence">—</div></div>
-          <div style="padding:8px 16px;font-size:10px;color:var(--dim);font-family:'DM Mono',monospace;border-top:1px solid var(--border)" id="dq-caveats"></div>
-        </div>
-      </div>
-
     </div>
   </div>
 </main>
@@ -358,11 +427,11 @@
 const $ = id => document.getElementById(id);
 const fmt = n => n >= 1e9 ? `$${(n/1e9).toFixed(1)}B` : n >= 1e6 ? `$${(n/1e6).toFixed(1)}M` : n >= 1e3 ? `$${(n/1e3).toFixed(0)}K` : `$${n}`;
 const fmtDate = iso => iso ? new Date(iso).toLocaleString('en-US', {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'America/New_York',hour12:false}) + ' ET' : '—';
+const truncate = (s, n) => s && s.length > n ? s.slice(0, n) + '…' : (s || '');
 
 const SECTOR_COLORS = {
   perp_dex:'#00e676', payfi:'#2979ff', defi_lending:'#888',
-  liquid_staking:'#7c4dff', ai_tokens:'#ff3d5a', memecoins:'#ffab00',
-  rwa:'#00bcd4'
+  liquid_staking:'#7c4dff', ai_tokens:'#ff3d5a', memecoins:'#ffab00', rwa:'#00bcd4'
 };
 const SECTOR_LABELS = {
   perp_dex:'Perp DEX', payfi:'PayFi / Stables', defi_lending:'DeFi Lending',
@@ -371,9 +440,26 @@ const SECTOR_LABELS = {
 
 // Clock
 setInterval(() => {
-  const n = new Date();
-  $('clock').textContent = n.toLocaleTimeString('en-US', {timeZone:'America/New_York',hour12:false}) + ' ET';
+  $('clock').textContent = new Date().toLocaleTimeString('en-US', {timeZone:'America/New_York',hour12:false}) + ' ET';
 }, 1000);
+
+// ── Sort state ──────────────────────────────────────────────────────────────
+let sectorData = [];
+let sortCol = 'fees';
+let sortDir = 'desc';
+
+function initTableSort() {
+  document.querySelectorAll('#sector-table th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.col;
+      if (sortCol === col) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { sortCol = col; sortDir = 'desc'; }
+      document.querySelectorAll('#sector-table th').forEach(h => h.classList.remove('sorted-asc','sorted-desc'));
+      th.classList.add(sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+      renderSectorTable();
+    });
+  });
+}
 
 // ── WebSocket ──────────────────────────────────────────────────────────────
 let ws;
@@ -381,42 +467,27 @@ const WS_URL = `ws://${location.host}/ws`;
 
 function connect() {
   ws = new WebSocket(WS_URL);
-
   ws.onopen = () => {
     setStatus('ready', 'LIVE');
     $('loading').classList.add('hidden');
     $('main').style.opacity = '1';
     $('main').style.transition = 'opacity 0.4s';
   };
-
-  ws.onmessage = e => {
-    const msg = JSON.parse(e.data);
-    handleMessage(msg);
-  };
-
+  ws.onmessage = e => handleMessage(JSON.parse(e.data));
   ws.onclose = () => {
     setStatus('error', 'RECONNECTING');
     setTimeout(connect, 3000);
   };
-
   ws.onerror = () => setStatus('error', 'ERROR');
 }
 
 function handleMessage(msg) {
   switch(msg.type) {
-    case 'full_state':
-      updateFromState(msg.state);
-      break;
-    case 'synthesis_update':
-      renderSynthesis(msg.data);
-      $('last-run').textContent = fmtDate(msg.last_run);
-      break;
-    case 'telegram_update':
-      updateNarrativeList(msg.data);
-      break;
-    case 'defillama_update':
-      updateSectorTable(msg.data, null);
-      break;
+    case 'full_state':       updateFromState(msg.state); break;
+    case 'synthesis_update': renderSynthesis(msg.data); $('last-run').textContent = fmtDate(msg.last_run); break;
+    case 'telegram_update':  updateNarrativeList(msg.data); break;
+    case 'defillama_update': storeDeFiLlama(msg.data); break;
+    case 'leaderboard_update': break; // future use
     case 'status':
       const labels = {collecting:'COLLECTING', synthesizing:'SYNTHESIZING', ready:'LIVE', error:'ERROR'};
       setStatus(msg.status, labels[msg.status] || msg.status.toUpperCase());
@@ -425,15 +496,9 @@ function handleMessage(msg) {
 }
 
 function updateFromState(state) {
-  if (state.synthesis && Object.keys(state.synthesis).length > 0) {
-    renderSynthesis(state.synthesis);
-  }
-  if (state.telegram_sectors && Object.keys(state.telegram_sectors).length > 0) {
-    updateNarrativeList(state.telegram_sectors);
-  }
-  if (state.defillama) {
-    updateSectorTable(state.defillama, state.telegram_sectors);
-  }
+  if (state.synthesis && Object.keys(state.synthesis).length > 0) renderSynthesis(state.synthesis);
+  if (state.telegram_sectors && Object.keys(state.telegram_sectors).length > 0) updateNarrativeList(state.telegram_sectors);
+  if (state.defillama) storeDeFiLlama(state.defillama, state.telegram_sectors);
   if (state.last_run) $('last-run').textContent = fmtDate(state.last_run);
   const labels = {collecting:'COLLECTING', synthesizing:'SYNTHESIZING', ready:'LIVE', error:'ERROR', initializing:'STARTING'};
   setStatus(state.status, labels[state.status] || 'LIVE');
@@ -442,10 +507,8 @@ function updateFromState(state) {
 // ── Render functions ───────────────────────────────────────────────────────
 
 function setStatus(status, label) {
-  const dot = $('status-dot');
-  dot.className = `status-dot ${status}`;
+  $('status-dot').className = `status-dot ${status}`;
   $('status-text').textContent = label;
-  // Sync tray icon colour when running inside the Tauri desktop app
   if (window.__TAURI__?.core) {
     window.__TAURI__.core.invoke('update_tray_status', { status }).catch(() => {});
   }
@@ -454,46 +517,54 @@ function setStatus(status, label) {
 function renderSynthesis(data) {
   if (!data || data.error) return;
 
-  // Meta read
-  if (data.meta_read) {
-    $('meta-text').textContent = data.meta_read;
-    $('meta-date').textContent = `AI briefing — ${fmtDate(data.synthesized_at)}${data.mock ? ' (MOCK DATA)' : ''}`;
+  // Action bar
+  if (data.weekly_actions && data.weekly_actions.length > 0) {
+    const bar = $('action-bar');
+    bar.classList.remove('empty');
+    $('action-bar-text').textContent = truncate(data.weekly_actions[0], 80);
   }
 
-  // Market phase
+  // Header phase
   if (data.market_phase) {
-    const p = data.market_phase;
     const phaseLabels = {
-      value_revenue: 'VALUE / REVENUE',
-      helicopter_money: 'HELICOPTER MONEY',
-      casino: 'CASINO',
-      dump: 'POST-DUMP',
-      extraction: 'STRUCTURED EXTRACTION'
+      value_revenue:'VALUE / REVENUE', helicopter_money:'HELICOPTER MONEY',
+      casino:'CASINO', dump:'POST-DUMP', extraction:'STRUCTURED EXTRACTION'
     };
-    $('phase-current').textContent = phaseLabels[p.current] || p.current.toUpperCase();
-    $('phase-confidence').textContent = `${Math.round((p.confidence||0)*100)}% CONFIDENCE`;
-    $('phase-reasoning').textContent = p.reasoning || '';
+    $('header-phase-text').textContent = phaseLabels[data.market_phase.current] || (data.market_phase.current||'').toUpperCase();
+  }
+
+  // Briefing
+  if (data.meta_read) {
+    $('briefing-text').textContent = data.meta_read;
+    $('briefing-date').textContent = `AI briefing — ${fmtDate(data.synthesized_at)}${data.mock ? ' (MOCK)' : ''}`;
+    // Data quality chips
+    if (data.data_quality) {
+      const dq = data.data_quality;
+      const chips = ['defillama','telegram','reddit'].map(k => {
+        const val = (dq[k] || 'unknown').toLowerCase();
+        return `<div class="dq-chip"><div class="dq-dot ${val}"></div><span>${k.toUpperCase()}</span></div>`;
+      }).join('');
+      $('dq-inline').innerHTML = chips;
+    }
   }
 
   // Rotation targets
-  if (data.rotation_targets) {
-    renderTargets(data.rotation_targets);
-  }
+  if (data.rotation_targets) renderTargets(data.rotation_targets);
 
-  // Desktop notification for EARLY HOT signals (Tauri only)
+  // Desktop notifications (Tauri)
   if (window.__TAURI__?.core && data.rotation_targets) {
     data.rotation_targets.filter(t => t.signal === 'EARLY HOT').forEach(t => {
       window.__TAURI__.core.invoke('show_notification', {
         title: `EARLY HOT: ${t.sector}`,
-        body: (t.why_now || 'New rotation target detected').substring(0, 120)
+        body: (t.why_now || '').substring(0, 120)
       }).catch(() => {});
     });
   }
 
-  // Alerts
+  // Alerts (max 3)
   if (data.narrative_alerts) {
-    $('alerts-list').innerHTML = data.narrative_alerts.map(a => `
-      <div class="alert-item fade-in">
+    $('alerts-list').innerHTML = data.narrative_alerts.slice(0,3).map(a => `
+      <div class="alert-item urgency-${a.urgency} fade-in">
         <div class="alert-urgency ${a.urgency}">${a.urgency.toUpperCase()}</div>
         <div class="alert-text">${a.alert}</div>
       </div>
@@ -505,106 +576,166 @@ function renderSynthesis(data) {
     $('actions-list').innerHTML = data.weekly_actions.map((a,i) => `
       <div class="action-item fade-in">
         <div class="action-num">${String(i+1).padStart(2,'0')}</div>
-        <div>${a}</div>
+        <div class="action-text">${a}</div>
       </div>
     `).join('');
-  }
-
-  // Data quality
-  if (data.data_quality) {
-    const dq = data.data_quality;
-    ['defillama','telegram','reddit'].forEach(k => {
-      const el = $(`dq-${k}`);
-      if (el) { el.textContent = (dq[k]||'—').toUpperCase(); el.className = `dq-val ${dq[k]||''}`; }
-    });
-    const conf = $('dq-confidence');
-    if (conf) { conf.textContent = (dq.overall_confidence||'—').toUpperCase(); conf.className = `dq-val ${dq.overall_confidence||''}`; }
-    if ($('dq-caveats') && dq.caveats) $('dq-caveats').textContent = dq.caveats;
   }
 }
 
 function renderTargets(targets) {
   if (!targets || targets.length === 0) {
-    $('targets-grid').innerHTML = `<div class="target-card" style="color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1">No strong rotation targets identified</div>`;
+    $('targets-row').innerHTML = `<div class="target-card" style="padding:20px;color:var(--muted);font-size:12px;font-family:'DM Mono',monospace;grid-column:1/-1">No strong rotation targets identified</div>`;
     return;
   }
 
-  $('targets-grid').innerHTML = targets.slice(0,2).map(t => {
-    const signalClass = t.signal?.includes('HOT') ? 'hot' : 'early';
+  $('targets-row').innerHTML = targets.slice(0,2).map(t => {
+    const sigClass = t.signal?.includes('HOT') ? 'hot' : t.signal?.includes('EARLY') ? 'early' : t.signal?.includes('MID') ? 'mid' : 'late';
     const layers = t.layer_suggestions || {};
     return `
-      <div class="target-card fade-in">
-        <div class="target-header">
-          <div class="target-sector">${t.sector}</div>
-          <div class="signal-pill ${signalClass}">${t.signal}</div>
+      <div class="target-card fade-in" data-sector="${t.sector}">
+        <div class="target-card-top">
+          <div class="target-card-header">
+            <div class="target-sector-name">${t.sector}</div>
+            <div class="signal-pill ${sigClass}">${t.signal || '—'}</div>
+          </div>
+          <div>
+            <div class="target-why-label">WHY NOW</div>
+            <div class="target-why">${t.why_now || '—'}</div>
+          </div>
+          <div class="target-plays">
+            <div class="target-plays-label">PLAYS</div>
+            ${layers.beta   ? `<div class="play-row"><span class="play-icon">β</span><span class="play-text">${layers.beta}</span></div>` : ''}
+            ${layers.shovel ? `<div class="play-row"><span class="play-icon">⛏</span><span class="play-text">${layers.shovel}</span></div>` : ''}
+            ${layers.flyer  ? `<div class="play-row"><span class="play-icon">🚀</span><span class="play-text">${layers.flyer}</span></div>` : ''}
+          </div>
+          ${t.invalidation ? `<div class="target-inval"><div class="inval-label">EXIT IF:</div><div>${t.invalidation}</div></div>` : ''}
         </div>
-        <div class="target-why">${t.why_now}</div>
-        <div class="layer-row">
-          ${layers.beta ? `<div class="layer-item"><span class="layer-badge beta">BETA</span><span class="layer-text">${layers.beta}</span></div>` : ''}
-          ${layers.shovel ? `<div class="layer-item"><span class="layer-badge shovel">SHOVEL</span><span class="layer-text">${layers.shovel}</span></div>` : ''}
-          ${layers.flyer ? `<div class="layer-item"><span class="layer-badge flyer">FLYER</span><span class="layer-text">${layers.flyer}</span></div>` : ''}
+        <div class="crowsnest-section">
+          <div class="cn-label">── CROW'S NEST ─── CHANNELS EARLY ON THIS SECTOR</div>
+          <div class="cn-channels"><div class="cn-loading">LOADING...</div></div>
+          <a class="cn-link" href="https://crowsnest.chainsounding.com" target="_blank">View on Crow's Nest →</a>
         </div>
-        ${t.invalidation ? `<div class="inval-row"><div class="inval-label">EXIT IF:</div><div>${t.invalidation}</div></div>` : ''}
       </div>
     `;
   }).join('');
+
+  // Fetch Crow's Nest data for each card
+  document.querySelectorAll('.target-card[data-sector]').forEach(card => {
+    fetchCrowsNestChannels(card.dataset.sector, card);
+  });
+}
+
+async function fetchCrowsNestChannels(sector, cardEl) {
+  const section = cardEl.querySelector('.crowsnest-section');
+  if (!section) return;
+
+  try {
+    const res = await fetch(`/api/crowsnest/${encodeURIComponent(sector)}`);
+    const data = await res.json();
+
+    if (!data.channels || data.channels.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+
+    const channelHTML = data.channels.map(ch => `
+      <div class="cn-channel">
+        <span class="cn-name">${ch.name}</span>
+        <span class="cn-score">${ch.score}/100</span>
+      </div>
+    `).join('');
+
+    section.querySelector('.cn-channels').innerHTML = channelHTML;
+    section.querySelector('.cn-link').href = data.crowsnest_url || 'https://crowsnest.chainsounding.com';
+  } catch(e) {
+    section.style.display = 'none';
+  }
 }
 
 function updateNarrativeList(sectors) {
   if (!sectors || Object.keys(sectors).length === 0) return;
-
   const sorted = Object.entries(sectors).sort((a,b) => (b[1].maturity_score||0) - (a[1].maturity_score||0));
 
   $('narrative-list').innerHTML = sorted.map(([id, data]) => {
     const label = SECTOR_LABELS[id] || id;
     const signal = (data.signal || 'UNKNOWN').toLowerCase().replace(/\s+/g,'_').replace(/[^a-z_]/g,'');
-    const signalClass = signal.includes('hot') ? 'early-hot' : signal.includes('early') ? 'early' : signal.includes('mid') ? 'mid' : 'avoid';
+    const sigClass = signal.includes('hot') ? 'early-hot' : signal.includes('early') ? 'early' : signal.includes('mid') ? 'mid' : 'avoid';
     const t1 = data.tier1_mentions || 0;
     const t2 = data.tier2_mentions || 0;
     const t3 = data.tier3_mentions || 0;
+
+    // Tier bar: 4 blocks, filled based on tier distribution
+    const total = t1 + t2 + t3 || 1;
+    const t1ratio = t1/total; const t2ratio = t2/total;
+    const blocks = [
+      `<div class="tier-block ${t1ratio>0.5?'filled-t1':'empty'}"></div>`,
+      `<div class="tier-block ${t1ratio>0.2||t2ratio>0.3?'filled-t2':'empty'}"></div>`,
+      `<div class="tier-block ${t2ratio>0.2||t3>2?'filled-t3':'empty'}"></div>`,
+      `<div class="tier-block ${t3>t1+t2?'filled-t3':'empty'}"></div>`,
+    ].join('');
+
     return `
-      <div class="narrative-row">
-        <div style="width:8px;height:8px;border-radius:50%;background:${SECTOR_COLORS[id]||'#555'};flex-shrink:0"></div>
-        <div class="narr-name">${label}</div>
-        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--dim)">T1:${t1} T2:${t2} T3:${t3}</div>
-        <div class="narr-signal ${signalClass}">${data.signal || '—'}</div>
+      <div class="narrative-item">
+        <div class="narr-top">
+          <div class="narr-name">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${SECTOR_COLORS[id]||'#555'};margin-right:8px;vertical-align:middle"></span>
+            ${label}
+          </div>
+          <div class="narr-signal-big ${sigClass}">${data.signal || '—'}</div>
+        </div>
+        <div class="tier-bar">
+          <div class="tier-blocks">${blocks}</div>
+          <div class="tier-counts">T1:${t1} T2:${t2} T3:${t3}</div>
+        </div>
       </div>
     `;
   }).join('');
 }
 
-function updateSectorTable(defillama, telegram) {
+function storeDeFiLlama(defillama, telegram) {
   const sectorFees = defillama?.sector_fees || {};
-  const sectors = Object.entries(sectorFees);
+  sectorData = Object.entries(sectorFees).map(([cat, data]) => ({
+    cat,
+    fees: data.total_7d || 0,
+    wow: data.wow_change_pct || 0,
+    count: data.protocol_count || 0,
+    signal: calcSignal(data.wow_change_pct || 0),
+  }));
+  renderSectorTable();
+}
 
-  if (sectors.length === 0) {
-    $('sector-table-body').innerHTML = '<tr><td colspan="6" style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:11px;text-align:center;padding:20px">No data — check network</td></tr>';
-    return;
-  }
+function calcSignal(wow) {
+  if (wow > 25) return 'EARLY HOT';
+  if (wow > 10) return 'EARLY';
+  if (wow > 0)  return 'NEUTRAL';
+  return 'WEAK';
+}
 
-  const sorted = sectors.sort((a,b) => (b[1].total_7d||0) - (a[1].total_7d||0));
+function renderSectorTable() {
+  if (!sectorData.length) return;
 
-  $('sector-table-body').innerHTML = sorted.slice(0, 10).map(([cat, data]) => {
-    const wow = data.wow_change_pct || 0;
-    const wowClass = wow > 0 ? 'wow-positive' : 'wow-negative';
-    const wowStr = `${wow > 0 ? '+' : ''}${wow.toFixed(1)}%`;
-    const matScore = Math.random() * 0.8; // Would come from telegram data in production
-    const matColor = matScore < 0.3 ? 'var(--green)' : matScore < 0.6 ? 'var(--amber)' : 'var(--red)';
+  const sorted = [...sectorData].sort((a, b) => {
+    let av = a[sortCol === 'fees' ? 'fees' : sortCol === 'wow' ? 'wow' : 'cat'];
+    let bv = b[sortCol === 'fees' ? 'fees' : sortCol === 'wow' ? 'wow' : 'cat'];
+    if (typeof av === 'string') return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    return sortDir === 'asc' ? av - bv : bv - av;
+  });
+
+  $('sector-table-body').innerHTML = sorted.slice(0, 10).map(row => {
+    const wowClass = row.wow > 0 ? 'wow-positive' : 'wow-negative';
+    const wowStr = `${row.wow > 0 ? '+' : ''}${row.wow.toFixed(1)}%`;
+    const sig = row.signal;
+    const sigClass = sig.includes('HOT') ? 'hot' : sig === 'EARLY' ? 'early' : sig === 'NEUTRAL' ? 'mid' : 'late';
+    const rowClass = sig.includes('HOT') ? 'signal-hot' : sig === 'EARLY' ? 'signal-early' : sig === 'NEUTRAL' ? 'signal-mid' : 'signal-late';
+    const dotColor = row.wow > 10 ? 'var(--green)' : row.wow > 0 ? 'var(--amber)' : 'var(--red)';
 
     return `
-      <tr>
-        <td><div class="sector-name"><div class="sector-dot" style="background:${matColor}"></div>${cat}</div></td>
-        <td class="mono">${fmt(data.total_7d||0)}</td>
-        <td class="mono ${wowClass}">${wowStr}</td>
-        <td style="font-size:10px;color:var(--muted)">—</td>
-        <td>
-          <div class="maturity-mini">
-            <div class="maturity-mini-fill" style="width:${matScore*100}%;background:${matColor}"></div>
-          </div>
-        </td>
-        <td style="font-size:10px;font-family:'DM Mono',monospace;color:${wow>10?'var(--green)':wow>0?'var(--amber)':'var(--red)'}">
-          ${wow > 10 ? 'WATCH' : wow > 0 ? 'NEUTRAL' : 'WEAK'}
-        </td>
+      <tr class="${rowClass}">
+        <td><div class="sector-name"><div class="sector-dot" style="background:${dotColor}"></div>${row.cat}</div></td>
+        <td class="mono">${fmt(row.fees)}</td>
+        <td><span class="wow-val ${wowClass}">${wowStr}</span></td>
+        <td><span class="signal-pill ${sigClass}">${sig}</span></td>
+        <td class="top-channel">—</td>
       </tr>
     `;
   }).join('');
@@ -619,9 +750,9 @@ function triggerRun() {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 $('loading-text').textContent = 'CONNECTING TO BACKEND...';
+initTableSort();
 connect();
 
-// Listen for "run-now" event emitted by the Tauri tray "Run Now" menu item
 if (window.__TAURI__?.event) {
   window.__TAURI__.event.listen('run-now', () => triggerRun());
 }
