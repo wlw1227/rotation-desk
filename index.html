@@ -463,7 +463,7 @@ function initTableSort() {
 
 // ── WebSocket ──────────────────────────────────────────────────────────────
 let ws;
-const WS_URL = `ws://${location.host}/ws`;
+const WS_URL = `wss://${location.host}/ws`;
 
 function connect() {
   ws = new WebSocket(WS_URL);
