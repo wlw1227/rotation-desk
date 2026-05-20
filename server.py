@@ -289,8 +289,11 @@ async def get_crowsnest_channels(sector: str):
 
         # Map sector names to category patterns
         sector_map = {
-            "derivatives": ["DeFi", "Derivatives"],
-            "perp dex": ["DeFi", "Derivatives"],
+            "derivatives": ["DeFi"],
+            "perp dex": ["DeFi"],
+            "perpetual": ["DeFi"],
+            "perp dex / derivatives": ["DeFi"],
+            "perpetual dex": ["DeFi"],
             "leveraged farming": ["DeFi", "Yield"],
             "defi lending": ["DeFi"],
             "liquid staking": ["DeFi"],
@@ -304,7 +307,7 @@ async def get_crowsnest_channels(sector: str):
         sector_lower = sector.lower()
         categories = []
         for key, cats in sector_map.items():
-            if key in sector_lower:
+            if any(word in sector_lower for word in key.split()):
                 categories = cats
                 break
 
