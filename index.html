@@ -31,7 +31,8 @@
     gap:16px;
   }
   .header-logo { display:flex; align-items:center; }
-  .header-logo img { height:28px; width:auto; }
+  .logo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:4px; }
+  .logo span { color:var(--blue); }
   .header-phase {
     display:flex; align-items:center; gap:8px;
     font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
@@ -51,25 +52,20 @@
   .status-dot.error { background:var(--red); }
   .status-dot.initializing { background:var(--muted); }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .run-btn {
-    font-family:'DM Mono',monospace; font-size:10px; letter-spacing:2px;
-    padding:5px 12px; background:transparent; color:var(--amber);
-    border:1px solid var(--amber); cursor:pointer; transition:all 0.15s;
-    white-space:nowrap;
-  }
-  .run-btn:hover { background:var(--amber-dim); }
+  .run-btn { display:none; }
   .clock { font-family:'DM Mono',monospace; font-size:11px; color:var(--muted); white-space:nowrap; }
 
   /* ── ACTION BAR ── */
   .action-bar {
-    background:var(--amber); padding:0 28px; height:38px;
+    background:rgba(41,121,255,0.15); border-bottom:1px solid rgba(41,121,255,0.3);
+    padding:0 28px; height:38px;
     display:flex; align-items:center; gap:12px;
     font-family:'DM Mono',monospace; font-size:11px; letter-spacing:1px;
-    color:#000; overflow:hidden; transition:opacity 0.3s;
+    color:var(--blue); overflow:hidden; transition:opacity 0.3s;
   }
   .action-bar-label { font-weight:500; white-space:nowrap; opacity:0.7; }
   .action-bar-text { font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .action-bar.empty { background:rgba(255,171,0,0.12); }
+  .action-bar.empty { background:rgba(41,121,255,0.06); border-bottom-color:rgba(41,121,255,0.15); }
   .action-bar.empty .action-bar-text { color:var(--muted); }
   .action-bar.empty .action-bar-label { color:var(--muted); }
 
@@ -79,7 +75,7 @@
   /* ── AI BRIEFING ── */
   .briefing {
     background:var(--surface); border:1px solid var(--border);
-    border-left:3px solid var(--amber);
+    border-left:3px solid var(--blue);
     padding:16px 20px; display:flex; flex-direction:column; gap:10px;
     transition:opacity 0.3s;
   }
@@ -124,7 +120,7 @@
     padding:3px 8px; border-radius:2px; white-space:nowrap; flex-shrink:0;
   }
   .signal-pill.hot { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
-  .signal-pill.early { background:rgba(255,171,0,0.1); color:var(--amber); border:1px solid rgba(255,171,0,0.3); }
+  .signal-pill.early { background:rgba(41,121,255,0.1); color:var(--blue); border:1px solid rgba(41,121,255,0.3); }
   .signal-pill.mid { background:rgba(100,100,100,0.1); color:var(--muted); border:1px solid var(--border-bright); }
   .signal-pill.late { background:rgba(255,61,90,0.08); color:var(--red); border:1px solid rgba(255,61,90,0.2); }
 
@@ -154,11 +150,11 @@
   /* Crow's Nest */
   .crowsnest-section {
     border-top:1px solid var(--border); padding:12px 20px 14px;
-    background:rgba(255,171,0,0.02);
+    background:rgba(41,121,255,0.02);
   }
   .cn-label {
     font-family:'DM Mono',monospace; font-size:9px; letter-spacing:2px;
-    color:var(--amber); margin-bottom:8px;
+    color:var(--blue); margin-bottom:8px;
   }
   .cn-channels { display:flex; flex-direction:column; gap:2px; min-height:18px; }
   .cn-channel {
@@ -175,7 +171,7 @@
   }
   .cn-link {
     display:block; font-family:'DM Mono',monospace; font-size:9px;
-    color:var(--amber); text-decoration:none; margin-top:8px; letter-spacing:1px;
+    color:var(--blue); text-decoration:none; margin-top:8px; letter-spacing:1px;
   }
   .cn-link:hover { text-decoration:underline; }
 
@@ -317,7 +313,7 @@
 
 <header>
   <div class="header-logo">
-    <img src="/SONAR_primary_dark.png" alt="Sonar">
+    <div class="logo">SON<span>AR</span></div>
   </div>
   <div class="header-phase" id="header-phase">
     <div class="phase-dot"></div>
