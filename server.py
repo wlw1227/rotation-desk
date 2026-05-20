@@ -331,8 +331,9 @@ async def get_crowsnest_channels(sector: str):
 
         def compute_overall_score(row):
             # Accuracy (35%)
-            accuracy = (row['hit_1_5x_rate'] * 0.40 +
-                        row['hit_2x_rate'] * 0.60) * 100
+            hit_1_5x = float(row['hit_1_5x_rate'] or 0)
+            hit_2x   = float(row['hit_2x_rate'] or 0)
+            accuracy = (hit_1_5x * 0.40 + hit_2x * 0.60) * 100
 
             # Returns (30%) - logarithmic scale
             r = float(row['avg_max_r'] or 0)
@@ -356,8 +357,7 @@ async def get_crowsnest_channels(sector: str):
 
             # Consistency (15%)
             mentions = int(row['total_mentions'] or 0)
-            consistency = (min(mentions / 300, 1) * 70 +
-                           float(row['hit_1_5x_rate'] or 0) * 30)
+            consistency = (min(mentions / 300, 1) * 70 + hit_1_5x * 30)
 
             overall = (accuracy * 0.35 + returns * 0.30 +
                        precision * 0.20 + consistency * 0.15)
