@@ -314,24 +314,60 @@ async def get_crowsnest_channels(sector: str):
             SELECT
                 s.name,
                 s.handle,
-                ss.final_score,
+                ss.hit_1_5x_rate,
                 ss.hit_2x_rate,
+                ss.avg_max_r,
+                ss.noise_score,
                 ss.total_mentions
             FROM sources s
             JOIN source_scores ss ON ss.source_id = s.id
             WHERE s.status NOT IN ('excluded', 'pending')
             AND ss.total_mentions >= 10
-            ORDER BY ss.final_score DESC
+            ORDER BY ss.hit_2x_rate DESC, ss.avg_max_r DESC
             LIMIT 3
         """)
 
         await conn.close()
 
+        def compute_overall_score(row):
+            # Accuracy (35%)
+            accuracy = (row['hit_1_5x_rate'] * 0.40 +
+                        row['hit_2x_rate'] * 0.60) * 100
+
+            # Returns (30%) - logarithmic scale
+            r = float(row['avg_max_r'] or 0)
+            if r >= 100:  returns = 100
+            elif r >= 50: returns = 75 + ((r - 50) / 50) * 25
+            elif r >= 20: returns = 50 + ((r - 20) / 30) * 25
+            elif r >= 10: returns = 30 + ((r - 10) / 10) * 20
+            elif r >= 5:  returns = 15 + ((r - 5) / 5) * 15
+            elif r >= 2:  returns = 5 + ((r - 2) / 3) * 10
+            else:         returns = 0
+
+            # Precision (20%)
+            noise = float(row['noise_score'] or 10)
+            if noise <= 1:   precision = 95
+            elif noise <= 2: precision = 85
+            elif noise <= 3: precision = 75
+            elif noise <= 5: precision = 60
+            elif noise <= 7: precision = 45
+            elif noise <= 10: precision = 25
+            else:            precision = 10
+
+            # Consistency (15%)
+            mentions = int(row['total_mentions'] or 0)
+            consistency = (min(mentions / 300, 1) * 70 +
+                           float(row['hit_1_5x_rate'] or 0) * 30)
+
+            overall = (accuracy * 0.35 + returns * 0.30 +
+                       precision * 0.20 + consistency * 0.15)
+            return round(overall, 1)
+
         channels = [
             {
                 "name": row["name"],
                 "handle": row["handle"],
-                "score": round(float(row["final_score"] or 0), 1),
+                "score": compute_overall_score(row),
                 "hit_2x_rate": round(float(row["hit_2x_rate"] or 0) * 100, 1),
             }
             for row in rows
